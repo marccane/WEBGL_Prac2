@@ -3,7 +3,7 @@
 var canvas;
 var gl;
 
-var NumVertices  = 36;
+//var NumVertices  = 36;
 
 var points = [];
 var colors = [];
@@ -13,18 +13,38 @@ var yAxis = 1;
 var zAxis = 2;
 
 var axis = 0;
-var theta = [ 0, 0, 0 ];
+var theta = [ 12, -15, 0 ];
 
 var thetaLoc;
 
+var black = [ 0.0, 0.0, 0.0, 1.0 ]; 
+var red = [ 1.0, 0.0, 0.0, 1.0 ]; 
+var yellow = [ 1.0, 1.0, 0.0, 1.0 ]; 
+var green = [ 0.0, 1.0, 0.0, 1.0 ]; 
+var blue = [ 0.0, 0.0, 1.0, 1.0 ]; 
+var magenta = [ 1.0, 0.0, 1.0, 1.0 ]; 
+var cyan = [ 0.0, 1.0, 1.0, 1.0 ]; 
+var white = [ 1.0, 1.0, 1.0, 1.0 ];
+var orange = [ 1.0, 0.5, 0.0, 1.0 ]; 
+
 window.onload = function init()
 {
+    var modeDebug=false;
+    if(modeDebug)
+        document.getElementById( "xButton" ).onclick = function () {
+            onload2();
+        };
+    else onload2();
+}
+
+function onload2(){
     canvas = document.getElementById( "gl-canvas" );
 
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
-    colorCube();
+    crearMapa();
+    //colorCube();
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
@@ -71,17 +91,57 @@ window.onload = function init()
     render();
 }
 
-function colorCube()
-{
-    quad( 1, 0, 3, 2 );
-    quad( 2, 3, 7, 6 );
-    quad( 3, 0, 4, 7 );
-    quad( 6, 5, 1, 2 );
-    quad( 4, 5, 6, 7 );
-    quad( 5, 4, 0, 1 );
+function crearMapa(){
+    var x=0.0, y=0.2, z=-0.2;
+
+    var size=0.5;
+    var sizeX=size, sizeY=size, sizeZ=size;
+
+    quad( //terra
+        vec4(-sizeX+x,-sizeY+y, sizeZ+z,1.0),
+        vec4(-sizeX+x,-sizeY+y,-sizeZ+z,1.0),
+        vec4( sizeX+x,-sizeY+y, sizeZ+z,1.0),
+        vec4( sizeX+x,-sizeY+y,-sizeZ+z,1.0),
+        blue
+    );
+    quad( //paret esquerra
+        vec4(-sizeX+x,-sizeY+y, sizeZ+z,1.0),
+        vec4(-sizeX+x,-sizeY+y,-sizeZ+z,1.0),
+        vec4(-sizeX+x, sizeY+y, sizeZ+z,1.0),
+        vec4(-sizeX+x, sizeY+y,-sizeZ+z,1.0),
+        red
+    );
+    quad( //paret dreta
+        vec4( sizeX+x,-sizeY+y, sizeZ+z,1.0),
+        vec4( sizeX+x,-sizeY+y,-sizeZ+z,1.0),
+        vec4( sizeX+x, sizeY+y, sizeZ+z,1.0),
+        vec4( sizeX+x, sizeY+y,-sizeZ+z,1.0),
+        orange
+    );
 }
 
-function quad(a, b, c, d)
+var numVertex = 0;
+
+function quad(p1, p2, p3, p4, color){
+    var vertices = [ p1, p2, p3, p2, p3, p4];
+    for(var i=0;i<vertices.length;i++){
+        points.push(vertices[i]);
+        colors.push(color);
+        numVertex++;
+    }
+}
+/*
+function colorCube()
+{
+    aberracio( 1, 0, 3, 2 );
+    aberracio( 2, 3, 7, 6 );
+    aberracio( 3, 0, 4, 7 );
+    aberracio( 6, 5, 1, 2 );
+    aberracio( 4, 5, 6, 7 );
+    aberracio( 5, 4, 0, 1 );
+}
+
+function aberracio(a, b, c, d)
 {
     var vertices = [
         vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -105,9 +165,9 @@ function quad(a, b, c, d)
         [ 1.0, 1.0, 1.0, 1.0 ]   // white
     ];
 
-    // We need to parition the quad into two triangles in order for
+    // We need to parition the aberracio into two triangles in order for
     // WebGL to be able to render it.  In this case, we create two
-    // triangles from the quad indices
+    // triangles from the aberracio indices
 
     //vertex color assigned by the index of the vertex
 
@@ -121,16 +181,16 @@ function quad(a, b, c, d)
         colors.push(vertexColors[a]);
 
     }
-}
+}*/
 
 function render()
 {
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    theta[axis] += 2.0;
+    //.theta[axis] += 2.0;
     gl.uniform3fv(thetaLoc, theta);
 
-    gl.drawArrays( gl.TRIANGLES, 0, NumVertices );
+    gl.drawArrays( gl.TRIANGLES, 0, numVertex );
 
     requestAnimFrame( render );
 }
