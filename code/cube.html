@@ -5,7 +5,10 @@
 
 attribute  vec4 vPosition;
 attribute  vec4 vColor;
-varying vec4 fColor;
+varying vec4 fColor;    
+
+uniform mat4 uMVMatrix;
+uniform mat4 pMVMatrix;
 
 uniform vec3 theta;
 
@@ -35,7 +38,7 @@ void main()
 		    0.0,  0.0, 0.0, 1.0 );
 
     fColor = vColor;
-    gl_Position = rz * ry * rx * vPosition;
+    gl_Position = rx * ry *rz * uMVMatrix * vPosition;
     gl_Position.z = -gl_Position.z;
 }
 </script>
@@ -63,7 +66,9 @@ main()
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
 
-<br/>
+<br/>  
+Use the cursor keys or WASD to run around, and <code>Page Up</code>/<code>Page Down</code> to
+look up and down.
 
 <button id= "xButton">Rotate X</button>
 <button id= "yButton">Rotate Y</button>

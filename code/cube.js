@@ -17,6 +17,10 @@ var theta = [ 12, -15, 0 ];
 
 var thetaLoc;
 
+var mvMatrixLoc;
+var pmvMatrixLoc;
+
+
 var black = [ 0.0, 0.0, 0.0, 1.0 ]; 
 var red = [ 1.0, 0.0, 0.0, 1.0 ]; 
 var yellow = [ 1.0, 1.0, 0.0, 1.0 ]; 
@@ -30,6 +34,9 @@ var orange = [ 1.0, 0.5, 0.0, 1.0 ];
 window.onload = function init()
 {
     var modeDebug=false;
+    document.onkeydown = handleKeyDown;
+    document.onkeyup = handleKeyUp;
+
     if(modeDebug)
         document.getElementById( "xButton" ).onclick = function () {
             onload2();
@@ -39,7 +46,7 @@ window.onload = function init()
 
 function onload2(){
     canvas = document.getElementById( "gl-canvas" );
-
+    ///events handlers per les tecles 
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
@@ -75,6 +82,8 @@ function onload2(){
     gl.enableVertexAttribArray( vPosition );
 
     thetaLoc = gl.getUniformLocation(program, "theta");
+	mvMatrixLoc = gl.getUniformLocation(program, "uMVMatrix");
+	pmvMatrixLoc = gl.getUniformLocation(program, "pMVMatrix");
 
     //event listeners for buttons
 
@@ -130,67 +139,123 @@ function quad(p1, p2, p3, p4, color){
         numVertex++;
     }
 }
-/*
-function colorCube()
-{
-    aberracio( 1, 0, 3, 2 );
-    aberracio( 2, 3, 7, 6 );
-    aberracio( 3, 0, 4, 7 );
-    aberracio( 6, 5, 1, 2 );
-    aberracio( 4, 5, 6, 7 );
-    aberracio( 5, 4, 0, 1 );
+
+
+var currentlyPressedKeys = {};
+function handleKeyDown(event) {
+    currentlyPressedKeys[event.keyCode] = true;
+}
+function handleKeyUp(event) {
+	currentlyPressedKeys[event.keyCode] = false;
 }
 
-function aberracio(a, b, c, d)
-{
-    var vertices = [
-        vec4( -0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5,  0.5,  0.5, 1.0 ),
-        vec4(  0.5,  0.5,  0.5, 1.0 ),
-        vec4(  0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5, -0.5, -0.5, 1.0 ),
-        vec4( -0.5,  0.5, -0.5, 1.0 ),
-        vec4(  0.5,  0.5, -0.5, 1.0 ),
-        vec4(  0.5, -0.5, -0.5, 1.0 )
-    ];
+var pitch = 0;
+var pitchRate = 0;
+var yaw = 0;
+var yawRate = 0;
+var xPos = 0;
+var yPos = 0;
+var zPos = 0;
+var speed = 0;
 
-    var vertexColors = [
-        [ 0.0, 0.0, 0.0, 1.0 ],  // black
-        [ 1.0, 0.0, 0.0, 1.0 ],  // red
-        [ 1.0, 1.0, 0.0, 1.0 ],  // yellow
-        [ 0.0, 1.0, 0.0, 1.0 ],  // green
-        [ 0.0, 0.0, 1.0, 1.0 ],  // blue
-        [ 1.0, 0.0, 1.0, 1.0 ],  // magenta
-        [ 0.0, 1.0, 1.0, 1.0 ],  // cyan
-        [ 1.0, 1.0, 1.0, 1.0 ]   // white
-    ];
+function handleKeys() {
+	if (currentlyPressedKeys[33]) {
+		// Page Up
+		pitchRate = 0.1;
+	} else if (currentlyPressedKeys[34]) {
+		// Page Down
+		pitchRate = -0.1;
+	} else {
+		pitchRate = 0;
+	}
+	if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
+		// Left cursor key or A
+        yawRate = 0.1;
+        console.log("imhere")
+	} else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
+		// Right cursor key or D
+		yawRate = -0.1;
+	} else {
+		yawRate = 0;
+	}
+	if (currentlyPressedKeys[38] || currentlyPressedKeys[87]) {
+		// Up cursor key or W
+		speed = 0.003;
+	} else if (currentlyPressedKeys[40] || currentlyPressedKeys[83]) {
+		// Down cursor key
+		speed = -0.003;
+	} else {
+		speed = 0;
+	}
+}
 
-    // We need to parition the aberracio into two triangles in order for
-    // WebGL to be able to render it.  In this case, we create two
-    // triangles from the aberracio indices
+function degToRad(degrees) {
+    return degrees * Math.PI / 180;
+}
 
-    //vertex color assigned by the index of the vertex
+var lastTime = 0;
+// Used to make us "jog" up and down as we move forward.
+var joggingAngle = 0;
 
-    var indices = [ a, b, c, a, c, d ];
 
-    for ( var i = 0; i < indices.length; ++i ) {
-        points.push( vertices[indices[i]] );
-        //colors.push( vertexColors[indices[i]] );
-
-        // for solid colored faces use
-        colors.push(vertexColors[a]);
-
+function animate() {
+    var timeNow = new Date().getTime();
+    if (lastTime != 0) {
+        var elapsed = timeNow - lastTime;
+        if (speed != 0) {
+            xPos -= Math.sin(degToRad(yaw)) * speed * elapsed;
+            zPos -= Math.cos(degToRad(yaw)) * speed * elapsed;
+            joggingAngle += elapsed * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
+            yPos = Math.sin(degToRad(joggingAngle)) / 20 + 0.4
+        }
+        yaw += yawRate * elapsed;
+        pitch += pitchRate * elapsed;
     }
-}*/
+    lastTime = timeNow;
+}
 
+
+
+var mvMatrix = mat4();
+var pmvMatrix = mat4();
+var mvMatrixStack = [];
+	
 function render()
 {
+
+    requestAnimFrame( render );
+
+    handleKeys();
+
+
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     //.theta[axis] += 2.0;
-    gl.uniform3fv(thetaLoc, theta);
+    gl.uniform3fv(thetaLoc, theta);   
+
+
+    var persp = perspective(45, canvas.width / canvas.height, 0.1, 100.0);
+    pmvMatrix = mult(persp,pmvMatrix);
+
+    mvMatrix = mat4();
+    var rotation1 = rotate(-pitch, [1, 0, 0]);
+    var rotation2 = rotate(-yaw, [0, 1, 0]);
+    var translation = translate(-xPos, -yPos, -zPos);
+
+    //rotate(-pitch, [1, 0, 0])*rotate(-yaw, [0, 1, 0])*translate(-xPos, -yPos, -zPos)*mvMatrix;
+    // mvMatrix = mult(rotation1, mvMatrix);
+    // mvMatrix = mult(rotation2, mvMatrix);
+    // mvMatrix = mult(translation, mvMatrix);
+
+    var rotation = mult(rotation1, rotation2);
+    var movment = mult(rotation, translation);
+    mvMatrix = mult(movment, mvMatrix);
+
+    console.log("ayy ", mvMatrix)
+
+    gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(mvMatrix) );       
+    gl.uniformMatrix4fv(pmvMatrixLoc, false, flatten(pmvMatrix) );       
 
     gl.drawArrays( gl.TRIANGLES, 0, numVertex );
-
-    requestAnimFrame( render );
+    animate();
 }
