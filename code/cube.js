@@ -1,13 +1,22 @@
 "use strict";
 
-var canvas;
 var gl;
+var canvas;
+var program;
 
-//var NumVertices  = 36;
+//Map
+var numVertex1 = 0;
+var points1 = [];
+var colors1 = [];
+var cBuffer1, vColor1, vBuffer1;
 
-var points = [];
-var colors = [];
+//Sphere
+var numVertexSphere = 0;
+var pointsSphere = [];
+var colorsSphere = [];
+var cBufferSphere, vColorSphere, vBufferSphere;
 
+//Generic
 var xAxis = 0;
 var yAxis = 1;
 var zAxis = 2;
@@ -19,7 +28,6 @@ var thetaLoc;
 
 var mvMatrixLoc;
 var pmvMatrixLoc;
-
 
 var black = [ 0.0, 0.0, 0.0, 1.0 ]; 
 var red = [ 1.0, 0.0, 0.0, 1.0 ]; 
@@ -45,48 +53,67 @@ window.onload = function init()
 }
 
 function onload2(){
+
     canvas = document.getElementById( "gl-canvas" );
-    ///events handlers per les tecles 
+
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
 
     crearMapa();
-    //colorCube();
+
+    var numTimesToSubdivide = 3;
+    var va = vec4(0.0, 0.0, -1.0, 1);
+    var vb = vec4(0.0, 0.942809, 0.333333, 1);
+    var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
+    var vd = vec4(0.816497, -0.471405, 0.333333, 1);
+
+    tetrahedron(va, vb, vc, vd, numTimesToSubdivide);
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
     gl.enable(gl.DEPTH_TEST);
 
-    //
     //  Load shaders and initialize attribute buffers
-    //
-    var program = initShaders( gl, "vertex-shader", "fragment-shader" );
+    program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    var cBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW );
+    //Map
+    cBuffer1 = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer1 );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(colors1), gl.STATIC_DRAW );
+/*
+    vColor1 = gl.getAttribLocation( program, "vColor" );
+    gl.vertexAttribPointer( vColor1, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vColor1 );*/
 
-    var vColor = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor );
-
-    var vBuffer = gl.createBuffer();
-    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
-
-
+    vBuffer1 = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer1 );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(points1), gl.STATIC_DRAW );
+/*
     var vPosition = gl.getAttribLocation( program, "vPosition" );
     gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );
+    gl.enableVertexAttribArray( vPosition );*/
+
+    //Sphere
+    cBufferSphere = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, cBufferSphere );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(colorsSphere), gl.STATIC_DRAW )
+
+    vBufferSphere = gl.createBuffer();
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBufferSphere );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsSphere), gl.STATIC_DRAW );
+/*
+    var vPosition = gl.getAttribLocation( program, "vPosition");
+    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray( vPosition);*/
+    //endSphere
 
     thetaLoc = gl.getUniformLocation(program, "theta");
 	mvMatrixLoc = gl.getUniformLocation(program, "uMVMatrix");
 	pmvMatrixLoc = gl.getUniformLocation(program, "pMVMatrix");
 
     //event listeners for buttons
-
     document.getElementById( "xButton" ).onclick = function () {
         axis = xAxis;
     };
@@ -100,6 +127,7 @@ function onload2(){
     render();
 }
 
+//Mapa
 function crearMapa(){
     var x=0.0, y=0.2, z=-0.2;
 
@@ -129,18 +157,51 @@ function crearMapa(){
     );
 }
 
-var numVertex = 0;
-
 function quad(p1, p2, p3, p4, color){
     var vertices = [ p1, p2, p3, p2, p3, p4];
     for(var i=0;i<vertices.length;i++){
-        points.push(vertices[i]);
-        colors.push(color);
-        numVertex++;
+        points1.push(vertices[i]);
+        colors1.push(color);
+        numVertex1++;
     }
 }
 
+//Esfera
+function triangle(a, b, c) {
+     pointsSphere.push(a);
+     pointsSphere.push(b);
+     pointsSphere.push(c);
+     colorsSphere.push(red); //color de l'esfera hardcodejat aqui <---
+     colorsSphere.push(blue);
+     colorsSphere.push(green);
+     numVertexSphere += 3;
+}
 
+function divideTriangle(a, b, c, count) {
+    if ( count > 0 ) {
+
+        var ab = normalize(mix( a, b, 0.5), true);
+        var ac = normalize(mix( a, c, 0.5), true);
+        var bc = normalize(mix( b, c, 0.5), true);
+
+        divideTriangle( a, ab, ac, count - 1 );
+        divideTriangle( ab, b, bc, count - 1 );
+        divideTriangle( bc, c, ac, count - 1 );
+        divideTriangle( ab, bc, ac, count - 1 );
+    }
+    else { // draw tetrahedron at end of recursion
+        triangle( a, b, c );
+    }
+}
+
+function tetrahedron(a, b, c, d, n) {
+    divideTriangle(a, b, c, n);
+    divideTriangle(d, c, b, n);
+    divideTriangle(a, d, b, n);
+    divideTriangle(a, c, d, n);
+}
+
+//Interacció WASD
 var currentlyPressedKeys = {};
 function handleKeyDown(event) {
     currentlyPressedKeys[event.keyCode] = true;
@@ -171,7 +232,6 @@ function handleKeys() {
 	if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
 		// Left cursor key or A
         yawRate = 0.1;
-        console.log("imhere")
 	} else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
 		// Right cursor key or D
 		yawRate = -0.1;
@@ -197,7 +257,6 @@ var lastTime = 0;
 // Used to make us "jog" up and down as we move forward.
 var joggingAngle = 0;
 
-
 function animate() {
     var timeNow = new Date().getTime();
     if (lastTime != 0) {
@@ -214,25 +273,21 @@ function animate() {
     lastTime = timeNow;
 }
 
-
-
+//Render
 var mvMatrix = mat4();
 var pmvMatrix = mat4();
 var mvMatrixStack = [];
 	
 function render()
 {
-
     requestAnimFrame( render );
 
     handleKeys();
 
-
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     //.theta[axis] += 2.0;
-    gl.uniform3fv(thetaLoc, theta);   
-
+    gl.uniform3fv(thetaLoc, theta);
 
     var persp = perspective(45, canvas.width / canvas.height, 0.1, 100.0);
     pmvMatrix = mult(persp,pmvMatrix);
@@ -251,11 +306,35 @@ function render()
     var movment = mult(rotation, translation);
     mvMatrix = mult(movment, mvMatrix);
 
-    console.log("ayy ", mvMatrix)
-
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(mvMatrix) );       
     gl.uniformMatrix4fv(pmvMatrixLoc, false, flatten(pmvMatrix) );       
 
-    gl.drawArrays( gl.TRIANGLES, 0, numVertex );
+    //Map
+    gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer1  );
+    let vertexColor = gl.getAttribLocation( program, "vColor" );
+    gl.vertexAttribPointer( vertexColor, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vertexColor );
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer1 );
+    let vertexPos = gl.getAttribLocation(program, "vPosition");
+    gl.vertexAttribPointer(vertexPos, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(vertexPos);
+
+    gl.drawArrays( gl.TRIANGLES, 0, numVertex1 );
+
+    //Sphere
+    gl.bindBuffer( gl.ARRAY_BUFFER, vBufferSphere );
+    var vPosition = gl.getAttribLocation( program, "vPosition");
+    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray( vPosition);
+
+    gl.bindBuffer( gl.ARRAY_BUFFER, cBufferSphere  );
+    vertexColor = gl.getAttribLocation( program, "vColor" );
+    gl.vertexAttribPointer( vertexColor, 4, gl.FLOAT, false, 0, 0 );
+    gl.enableVertexAttribArray( vertexColor );
+
+    for( var i=0; i<numVertexSphere; i+=3)
+       gl.drawArrays( gl.LINE_LOOP, i, 3 );
+
     animate();
 }

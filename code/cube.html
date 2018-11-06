@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html>
 
+<head>
+    <meta charset="UTF-8">
+</head>
+
 <script id="vertex-shader" type="x-shader/x-vertex">
 
 attribute  vec4 vPosition;
@@ -53,6 +57,7 @@ void
 main()
 {
     gl_FragColor = fColor;
+    //gl_FragColor = vec4(1.0,0,0,1.0);
 }
 </script>
 
@@ -70,9 +75,11 @@ Oops ... your browser doesn't support the HTML5 canvas element
 Use the cursor keys or WASD to run around, and <code>Page Up</code>/<code>Page Down</code> to
 look up and down.
 
-<button id= "xButton">Rotate X</button>
+<p>
+<button id= "xButton">Rotate X (+ debug)</button>
 <button id= "yButton">Rotate Y</button>
 <button id= "zButton">Rotate Z</button>
+</p>
 
 </body>
 </html>
