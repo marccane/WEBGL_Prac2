@@ -27,7 +27,7 @@ var theta = [ 12, -15, 0 ];
 var thetaLoc;
 
 var mvMatrixLoc;
-var pmvMatrixLoc;
+var SizeMatrixLoc;
 
 var black = [ 0.0, 0.0, 0.0, 1.0 ]; 
 var red = [ 1.0, 0.0, 0.0, 1.0 ]; 
@@ -61,7 +61,7 @@ function onload2(){
 
     crearMapa();
 
-    var numTimesToSubdivide = 3;
+    var numTimesToSubdivide = 7;
     var va = vec4(0.0, 0.0, -1.0, 1);
     var vb = vec4(0.0, 0.942809, 0.333333, 1);
     var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
@@ -111,7 +111,7 @@ function onload2(){
 
     thetaLoc = gl.getUniformLocation(program, "theta");
 	mvMatrixLoc = gl.getUniformLocation(program, "uMVMatrix");
-	pmvMatrixLoc = gl.getUniformLocation(program, "pMVMatrix");
+	SizeMatrixLoc = gl.getUniformLocation(program, "resize");
 
     //event listeners for buttons
     document.getElementById( "xButton" ).onclick = function () {
@@ -275,8 +275,9 @@ function animate() {
 
 //Render
 var mvMatrix = mat4();
-var pmvMatrix = mat4();
+var Identity = mat4();
 var mvMatrixStack = [];
+var scalematrix = flatten(scalem(0.1,0.1,0.1));
 	
 function render()
 {
@@ -289,9 +290,7 @@ function render()
     //.theta[axis] += 2.0;
     gl.uniform3fv(thetaLoc, theta);
 
-    var persp = perspective(45, canvas.width / canvas.height, 0.1, 100.0);
-    pmvMatrix = mult(persp,pmvMatrix);
-
+    Identity = mat4();
     mvMatrix = mat4();
     var rotation1 = rotate(-pitch, [1, 0, 0]);
     var rotation2 = rotate(-yaw, [0, 1, 0]);
@@ -307,7 +306,7 @@ function render()
     mvMatrix = mult(movment, mvMatrix);
 
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(mvMatrix) );       
-    gl.uniformMatrix4fv(pmvMatrixLoc, false, flatten(pmvMatrix) );       
+    gl.uniformMatrix4fv(SizeMatrixLoc, false, flatten(Identity) );       
 
     //Map
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer1  );
@@ -332,9 +331,14 @@ function render()
     vertexColor = gl.getAttribLocation( program, "vColor" );
     gl.vertexAttribPointer( vertexColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vertexColor );
+    
 
-    for( var i=0; i<numVertexSphere; i+=3)
-       gl.drawArrays( gl.LINE_LOOP, i, 3 );
+    //sphere resize 
+    gl.uniformMatrix4fv(SizeMatrixLoc, false, scalematrix );   
 
+
+    // for( var i=0; i<numVertexSphere; i+=3)
+    //    gl.drawArrays( gl.TRIANGLES, i, 3 );
+    gl.drawArrays( gl.LINES, 0, numVertexSphere );
     animate();
 }
