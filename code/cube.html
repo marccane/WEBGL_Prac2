@@ -11,6 +11,7 @@ attribute  vec4 vPosition;
 attribute  vec4 vColor;
 varying vec4 fColor;    
 
+uniform mat4 projectionMatrix;
 uniform mat4 uMVMatrix;
 uniform mat4 resize;
 
@@ -42,7 +43,7 @@ void main()
 		    0.0,  0.0, 0.0, 1.0 );
 
     fColor = vColor;
-    gl_Position = rx * ry *rz * uMVMatrix * resize  * vPosition;
+    gl_Position = projectionMatrix * rx * ry *rz * uMVMatrix * resize  * vPosition;
     gl_Position.z = -gl_Position.z;
 }
 </script>

@@ -22,12 +22,14 @@ var yAxis = 1;
 var zAxis = 2;
 
 var axis = 0;
-var theta = [ 12, -15, 0 ];
+//var theta = [ 12, -15, 0 ];
+var theta = [ -5, 10, 0 ];
 
 var thetaLoc;
 
 var mvMatrixLoc;
 var SizeMatrixLoc;
+var projectionMatrixLoc;
 
 var black = [ 0.0, 0.0, 0.0, 1.0 ]; 
 var red = [ 1.0, 0.0, 0.0, 1.0 ]; 
@@ -61,7 +63,7 @@ function onload2(){
 
     crearMapa();
 
-    var numTimesToSubdivide = 7;
+    var numTimesToSubdivide = 5;
     var va = vec4(0.0, 0.0, -1.0, 1);
     var vb = vec4(0.0, 0.942809, 0.333333, 1);
     var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
@@ -82,18 +84,10 @@ function onload2(){
     cBuffer1 = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer1 );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(colors1), gl.STATIC_DRAW );
-/*
-    vColor1 = gl.getAttribLocation( program, "vColor" );
-    gl.vertexAttribPointer( vColor1, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vColor1 );*/
 
     vBuffer1 = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer1 );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(points1), gl.STATIC_DRAW );
-/*
-    var vPosition = gl.getAttribLocation( program, "vPosition" );
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0 );
-    gl.enableVertexAttribArray( vPosition );*/
 
     //Sphere
     cBufferSphere = gl.createBuffer();
@@ -103,15 +97,12 @@ function onload2(){
     vBufferSphere = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBufferSphere );
     gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsSphere), gl.STATIC_DRAW );
-/*
-    var vPosition = gl.getAttribLocation( program, "vPosition");
-    gl.vertexAttribPointer( vPosition, 4, gl.FLOAT, false, 0, 0);
-    gl.enableVertexAttribArray( vPosition);*/
     //endSphere
 
     thetaLoc = gl.getUniformLocation(program, "theta");
 	mvMatrixLoc = gl.getUniformLocation(program, "uMVMatrix");
 	SizeMatrixLoc = gl.getUniformLocation(program, "resize");
+    projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
 
     //event listeners for buttons
     document.getElementById( "xButton" ).onclick = function () {
@@ -277,8 +268,17 @@ function animate() {
 var mvMatrix = mat4();
 var Identity = mat4();
 var mvMatrixStack = [];
-var scalematrix = flatten(scalem(0.1,0.1,0.1));
-	
+
+var escalatEsfera = 0.2
+var scalematrix = flatten(scalem(escalatEsfera,escalatEsfera,escalatEsfera));
+
+var near = -10;
+var far = 10;
+var left = -1.0;
+var right = 1.0;
+var ytop = 1.0;
+var bottom = -1.0;
+
 function render()
 {
     requestAnimFrame( render );
@@ -305,8 +305,11 @@ function render()
     var movment = mult(rotation, translation);
     mvMatrix = mult(movment, mvMatrix);
 
+    var projectionMatrix = ortho(left, right, bottom, ytop, near, far);
+
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(mvMatrix) );       
-    gl.uniformMatrix4fv(SizeMatrixLoc, false, flatten(Identity) );       
+    gl.uniformMatrix4fv(SizeMatrixLoc, false, flatten(Identity) );
+    gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix) );      
 
     //Map
     gl.bindBuffer( gl.ARRAY_BUFFER, cBuffer1  );
@@ -332,13 +335,13 @@ function render()
     gl.vertexAttribPointer( vertexColor, 4, gl.FLOAT, false, 0, 0 );
     gl.enableVertexAttribArray( vertexColor );
     
-
     //sphere resize 
     gl.uniformMatrix4fv(SizeMatrixLoc, false, scalematrix );   
 
-
     // for( var i=0; i<numVertexSphere; i+=3)
     //    gl.drawArrays( gl.TRIANGLES, i, 3 );
+
     gl.drawArrays( gl.LINES, 0, numVertexSphere );
+
     animate();
 }
