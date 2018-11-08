@@ -206,8 +206,8 @@ var pitchRate = 0;
 var yaw = 0;
 var yawRate = 0;
 var xPos = 0;
-var yPos = 0;
-var zPos = 0;
+var yPos = 0.4;
+var zPos = 2.0;
 var speed = 0;
 
 function handleKeys() {
@@ -256,7 +256,7 @@ function animate() {
             xPos -= Math.sin(degToRad(yaw)) * speed * elapsed;
             zPos -= Math.cos(degToRad(yaw)) * speed * elapsed;
             joggingAngle += elapsed * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
-            yPos = Math.sin(degToRad(joggingAngle)) / 20 + 0.4
+            yPos -=  Math.sin(degToRad(pitch)) * speed * elapsed;
         }
         yaw += yawRate * elapsed;
         pitch += pitchRate * elapsed;
@@ -272,8 +272,8 @@ var mvMatrixStack = [];
 var escalatEsfera = 0.2
 var scalematrix = flatten(scalem(escalatEsfera,escalatEsfera,escalatEsfera));
 
-var near = -10;
-var far = 10;
+var near = 0.1;
+var far = 50;
 var left = -1.0;
 var right = 1.0;
 var ytop = 1.0;
@@ -296,16 +296,14 @@ function render()
     var rotation2 = rotate(-yaw, [0, 1, 0]);
     var translation = translate(-xPos, -yPos, -zPos);
 
-    //rotate(-pitch, [1, 0, 0])*rotate(-yaw, [0, 1, 0])*translate(-xPos, -yPos, -zPos)*mvMatrix;
-    // mvMatrix = mult(rotation1, mvMatrix);
-    // mvMatrix = mult(rotation2, mvMatrix);
-    // mvMatrix = mult(translation, mvMatrix);
-
     var rotation = mult(rotation1, rotation2);
     var movment = mult(rotation, translation);
-    mvMatrix = mult(movment, mvMatrix);
+    mvMatrix = mult(mvMatrix, movment);
 
-    var projectionMatrix = ortho(left, right, bottom, ytop, near, far);
+    //var projectionMatrix = ortho(left, right, bottom, ytop, near, far);
+
+
+    var projectionMatrix = perspective(45, canvas.width / canvas.height, near, far);
 
     gl.uniformMatrix4fv(mvMatrixLoc, false, flatten(mvMatrix) );       
     gl.uniformMatrix4fv(SizeMatrixLoc, false, flatten(Identity) );
@@ -341,7 +339,7 @@ function render()
     // for( var i=0; i<numVertexSphere; i+=3)
     //    gl.drawArrays( gl.TRIANGLES, i, 3 );
 
-    gl.drawArrays( gl.LINES, 0, numVertexSphere );
+    gl.drawArrays( gl.TRIANGLES, 0, numVertexSphere );
 
     animate();
 }
