@@ -74,11 +74,12 @@ function onload2(){
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
 
-    gl.enable(gl.DEPTH_TEST);
-
     //  Load shaders and initialize attribute buffers
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
+
+    gl.enable(gl.DEPTH_TEST);
+    gl.cullFace(gl.FRONT);
 
     //Map
     cBuffer1 = gl.createBuffer();
@@ -120,7 +121,7 @@ function onload2(){
 
 //Mapa
 function crearMapa(){
-    var x=0.0, y=0.2, z=-0.2;
+    var x=0.0, y=0, z=0;
 
     var size=0.5;
     var sizeX=size, sizeY=size, sizeZ=size;
@@ -207,7 +208,7 @@ var yaw = 0;
 var yawRate = 0;
 var xPos = 0;
 var yPos = 0.4;
-var zPos = 2.0;
+var zPos = 5.0;
 var speed = 0;
 
 function handleKeys() {
@@ -222,10 +223,10 @@ function handleKeys() {
 	}
 	if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
 		// Left cursor key or A
-        yawRate = 0.1;
+        yawRate = 0.05;
 	} else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
 		// Right cursor key or D
-		yawRate = -0.1;
+		yawRate = -0.05;
 	} else {
 		yawRate = 0;
 	}
@@ -281,7 +282,7 @@ var bottom = -1.0;
 
 function render()
 {
-    requestAnimFrame( render );
+    
 
     handleKeys();
 
@@ -299,6 +300,8 @@ function render()
     var rotation = mult(rotation1, rotation2);
     var movment = mult(rotation, translation);
     mvMatrix = mult(mvMatrix, movment);
+
+    //mvMatrix = mult( mvMatrix, lookAt([0,0,0],[0,1,0], [0,0,0]));
 
     //var projectionMatrix = ortho(left, right, bottom, ytop, near, far);
 
@@ -342,4 +345,6 @@ function render()
     gl.drawArrays( gl.TRIANGLES, 0, numVertexSphere );
 
     animate();
+
+    requestAnimFrame( render );
 }
