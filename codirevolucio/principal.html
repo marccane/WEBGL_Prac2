@@ -12,6 +12,7 @@ attribute  vec4 vColor;
 varying vec4 fColor;
 
 uniform vec3 theta;
+uniform mat4 transformation;
 
 void main()
 {
@@ -39,7 +40,7 @@ void main()
             0.0,  0.0, 0.0, 1.0 );
 
     fColor = vColor;
-    gl_Position = rz * ry * rx * vPosition;
+    gl_Position = transformation * vPosition;
     gl_Position.z = -gl_Position.z;
 }
 </script>

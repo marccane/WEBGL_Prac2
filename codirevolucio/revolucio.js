@@ -2,16 +2,21 @@
 
 class cosRevolucio{
     
-    constructor(gl, program, funcio, LPERF, NDIVS){
+    constructor(gl, program, func, LPERF, NDIVS, color, uniformLoc){ //position és una array de 3
         this.gl = gl;
         this.program = program;
-        this.funcio = funcio;
+        this.func = func;
         this.points = undefined;
         this.colors = undefined;
         this.cBuffer = undefined;
         this.vBuffer = undefined;
         this.LPERF = LPERF;
         this.NDIVS = NDIVS;
+        this.color = color;
+        this.scaleMatrix = mat4();
+        this.translationMatrix = mat4();
+        this.rotationMatrix = mat4(); 
+        this.uniformLoc = uniformLoc;
 
         this.Vertex3d = function (x,y,z) {
             this.vec = vec4(x,y,z,1.0);
@@ -22,7 +27,7 @@ class cosRevolucio{
         };
 
         this.Object = function() {
-            this.vertices = []; //Vertex3d???
+            this.vertices = []; //Vertex3d
             this.tris = []; //Triangles
             this.nvertices = 0;
         };
@@ -46,7 +51,7 @@ class cosRevolucio{
         {
             x = i / this.LPERF;
             //ini.p[i] = new Vertex3d(x,-0.5*x+1,0).vec;
-            ini.p[i] = new this.Vertex3d(x,this.funcio(x),0).vec;
+            ini.p[i] = new this.Vertex3d(x,this.func(x),0).vec;
         }
 
         m.nvertices = 0;
@@ -104,10 +109,8 @@ class cosRevolucio{
             this.points.push(this.objecte3d.tris[i]);*/
         this.colors = new Array(this.points.length);
 
-        var orange = [ 1.0, 0.5, 0.0, 1.0 ]; 
-
         for(var i=0;i<this.colors.length;i++) //OJO color hardcodejat aqui <----------------
-            this.colors[i]=orange;
+            this.colors[i]=this.color;
 
         this.cBuffer = gl.createBuffer();
         gl.bindBuffer( gl.ARRAY_BUFFER, this.cBuffer );
@@ -118,7 +121,36 @@ class cosRevolucio{
         gl.bufferData( gl.ARRAY_BUFFER, flatten(this.points), gl.STATIC_DRAW );
     }
 
+    setScale(x, y, z){
+        this.scaleMatrix = scalem(x,y,z);
+    }
+
+    addScalanation(x,y,z){
+        this.scaleMatrix = mult(this.scaleMatrix, scalem(x,y,z));
+    }
+
+    setTranslation(x,y,z){
+        this.translationMatrix = translate(x,y,z);
+    }
+
+    addRotation(angle, axis){ //adds a rotation effect to the object, rep angle i vector de 3 amb els eixos de rotació
+        this.rotationMatrix = mult(this.rotationMatrix, rotate(angle,axis));   
+    }
+
+    addTranslation(x,y,z){
+        this.translationMatrix = mult(this.translationMatrix, translate(x,y,z));
+    }
+
+
+
     draw(){
+        
+        let movement = mult(this.rotationMatrix, this.translationMatrix);
+        let transformation = mult(movement, this.scaleMatrix);
+        
+        let uniformLoc = gl.getUniformLocation(this.program, "transformation");
+        gl.uniformMatrix4fv(uniformLoc, false, flatten(transformation) ); 
+
         gl.bindBuffer( gl.ARRAY_BUFFER, this.vBuffer );
         let vertexPos = gl.getAttribLocation(this.program, "vPosition");
         gl.vertexAttribPointer(vertexPos, 4, gl.FLOAT, false, 0, 0);

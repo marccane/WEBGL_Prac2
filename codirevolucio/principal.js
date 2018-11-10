@@ -48,9 +48,10 @@ function onload2()
     var program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
 
-    objectes3D.push(new cosRevolucio(gl, program, (x => x*x+1), 7, 40));
-
     thetaLoc = gl.getUniformLocation(program, "theta");
+
+    objectes3D.push(new cosRevolucio(gl, program, (x => -0.5*x+1), 14, 140, [ 1.0, 0.0, 0.0, 1.0 ]));
+    objectes3D[objectes3D.length - 1].addRotation(25,[1,1,1]);
 
     //event listeners for buttons
 
