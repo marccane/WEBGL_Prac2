@@ -2,7 +2,7 @@
 
 class cosRevolucio{
     
-    constructor(gl, program, func, LPERF, NDIVS, color, uniformLoc){ //position és una array de 3
+    constructor(gl, program, func, LPERF, NDIVS, color){ //position és una array de 3
         this.gl = gl;
         this.program = program;
         this.func = func;
@@ -15,8 +15,7 @@ class cosRevolucio{
         this.color = color;
         this.scaleMatrix = mat4();
         this.translationMatrix = mat4();
-        this.rotationMatrix = mat4(); 
-        this.uniformLoc = uniformLoc;
+        this.rotationMatrix = mat4();
 
         this.Vertex3d = function (x,y,z) {
             this.vec = vec4(x,y,z,1.0);
