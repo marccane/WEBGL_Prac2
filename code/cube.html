@@ -13,14 +13,13 @@ varying vec4 fColor;
 
 uniform mat4 projectionMatrix;
 uniform mat4 uMVMatrix;
-uniform mat4 resize;
+uniform mat4 objectTransformation;
 
-uniform vec3 theta;
 
 void main()
 {
     fColor = vColor;
-    gl_Position = projectionMatrix * uMVMatrix * resize  * vPosition;
+    gl_Position = projectionMatrix * uMVMatrix * objectTransformation  * vPosition;
 }
 </script>
 
@@ -42,6 +41,7 @@ main()
 <script type="text/javascript" src="../Common/initShaders.js"></script>
 <script type="text/javascript" src="../Common/MV.js"></script>
 <script type="text/javascript" src="cube.js"></script>
+<script type="text/javascript" src="sphere.js"></script>
 
 <body>
 <canvas id="gl-canvas" width="720" height="720">
@@ -54,9 +54,6 @@ look up and down.
 
 <p>
 <button id= "xButton">Rotate X (+ debug)</button>
-<button id= "yButton">Rotate Y</button>
-<button id= "zButton">Rotate Z</button>
-</p>
 
 </body>
 </html>

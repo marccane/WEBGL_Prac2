@@ -103,12 +103,9 @@ class cosRevolucio{
     initBuffersGPU(){
 
         this.points = this.objecte3d.tris;
-        /*this.points=[];
-        for(var i=0;i<this.objecte3d.tris.length;i++)
-            this.points.push(this.objecte3d.tris[i]);*/
         this.colors = new Array(this.points.length);
 
-        for(var i=0;i<this.colors.length;i++) //OJO color hardcodejat aqui <----------------
+        for(var i=0;i<this.colors.length;i++) 
             this.colors[i]=this.color;
 
         this.cBuffer = gl.createBuffer();
