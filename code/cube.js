@@ -4,14 +4,16 @@ var gl;
 var canvas;
 var program;
 
+
+var objects3d = [];//set of all of the 3d objects to draw
+
+
 //Map
 var numVertex1 = 0;
 var points1 = [];
 var colors1 = [];
 var cBuffer1, vColor1, vBuffer1;
 
-//Sphere
-var sphere;
 
 var mvMatrixLoc;
 var projectionMatrixLoc;
@@ -66,9 +68,21 @@ function onLoad(){
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
     objectTransformationLoc = gl.getUniformLocation(program, "objectTransformation");
 
-    sphere = new Sphere(gl, program, 7, black);
+    var sphere = new Sphere(gl, program, 7, black);
     sphere.setScale(0.1,0.1,0.1);
-    sphere.setTranslation(-0.1,-0.1,0);
+    sphere.setTranslation(-0.2,-0.1,0);
+    objects3d.push(sphere);
+    var revSolid = new cosRevolucio(gl, program, (x => -0.5*x+1), 14, 140, [ 1.0, 0.0, 0.0, 1.0 ]);
+    revSolid.setScale(0.3,0.3,0.3);
+    revSolid.setTranslation(0.25,-0.3,0);
+    objects3d.push(revSolid);
+
+    revSolid = new cosRevolucio(gl, program, (x => x*x+1), 14, 140, [ 1.0, 0.0, 0.0, 1.0 ]);
+    revSolid.setScale(0.3,0.3,0.3);
+    revSolid.setTranslation(0.25,0.3,0);
+    objects3d.push(revSolid);
+    
+
     
 
     render();
@@ -234,8 +248,10 @@ function render()
 
     gl.drawArrays( gl.TRIANGLES, 0, numVertex1 );
 
-    //Sphere
-    sphere.draw();
+    //drawing the 3d obejcts
+    for(var i=0;i<objects3d.length;i++)
+        objects3d[i].draw();
+
     animate();
 
     requestAnimFrame( render );
