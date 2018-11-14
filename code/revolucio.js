@@ -2,10 +2,11 @@
 
 class cosRevolucio{
     
-    constructor(gl, program, func, LPERF, NDIVS, color){ //position és una array de 3
+    constructor(gl, program, funcX, funcY, LPERF, NDIVS, color){ //position és una array de 3
         this.gl = gl;
         this.program = program;
-        this.func = func;
+        this.funcX = funcX;
+        this.funcY = funcY;
         this.points = undefined;
         this.colors = undefined;
         this.cBuffer = undefined;
@@ -50,7 +51,7 @@ class cosRevolucio{
         {
             x = i / this.LPERF;
             //ini.p[i] = new Vertex3d(x,-0.5*x+1,0).vec;
-            ini.p[i] = new this.Vertex3d(x,this.func(x),0).vec;
+            ini.p[i] = new this.Vertex3d(this.funcX(x),this.funcY(x),0).vec;
         }
 
         m.nvertices = 0;

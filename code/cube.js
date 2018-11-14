@@ -72,16 +72,22 @@ function onLoad(){
     sphere.setScale(0.1,0.1,0.1);
     sphere.setTranslation(-0.2,-0.1,0);
     objects3d.push(sphere);
-    var revSolid = new cosRevolucio(gl, program, (x => -0.5*x+1), 14, 140, [ 1.0, 0.0, 0.0, 1.0 ]);
+    var revSolid = new cosRevolucio(gl, program, (x=>x),(x => -0.5*x+1), 14, 140,red);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(0.25,-0.3,0);
     objects3d.push(revSolid);
 
-    revSolid = new cosRevolucio(gl, program, (x => x*x+1), 14, 140, [ 1.0, 0.0, 0.0, 1.0 ]);
+    revSolid = new cosRevolucio(gl, program, (x=>x), (x => x*x+1), 14, 140, magenta);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(0.25,0.3,0);
     objects3d.push(revSolid);
     
+
+    revSolid = new cosRevolucio(gl, program, (x=>1), (x => x), 14, 140, green);
+    revSolid.setScale(0.3,0.3,0.3);
+    revSolid.setTranslation(-0.25,0.3,0);
+    revSolid.addRotation(20, [1,0,1]);
+    objects3d.push(revSolid);
 
     
 
@@ -92,7 +98,7 @@ function onLoad(){
 function crearMapa(){
     var x=0.0, y=0, z=0;
 
-    var size=0.5;
+    var size=1.25;
     var sizeX=size, sizeY=size, sizeZ=size;
 
     quad( //terra
