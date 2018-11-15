@@ -82,7 +82,7 @@ function onLoad(){
     //bol
     var revSolid = new cosRevolucio(gl, program, (x=>x), (x => x*x+1), 14, 140, magenta);
     revSolid.setScale(0.3,0.3,0.3);
-    revSolid.setTranslation(0.25,0.3,0);
+    revSolid.setTranslation(0.5,0.3,0);
     objects3d.push(revSolid);
 
     //cilindre
@@ -107,15 +107,15 @@ function onLoad(){
     revSolid.setTranslation(0.25,0.3,0.8);
     objects3d.push(revSolid);*/
 
-    var t1 = 0.5, t2 = -0.5, t3 = 0;
+    var t1 = 0, t2 = -0.7, t3 = -0.5;
 
-    revSolid = new cosRevolucio(gl, program, (x=>x),(x => x), 14, 140,red);
+    revSolid = new cosRevolucio(gl, program, (x=>x),(x => x), 14, 140, [0.2,0.6,0,1]);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(t1,t2,t3);
     objects3d.push(revSolid);    
 
 
-    revSolid = new cosRevolucio(gl, program, (x=>x),(x => -x), 14, 140,cyan);
+    revSolid = new cosRevolucio(gl, program, (x=>x),(x => -x), 14, 140, [0.2,0.8,0,1]);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(t1,t2,t3);
     objects3d.push(revSolid);    
@@ -305,7 +305,7 @@ function render()
 
     animate();
 
-    objects3d[3].addRotation(1, [1,0,0]);
+    objects3d[5].addRotation(1, [1,0,0]);
     objects3d[4].addRotation(1, [1,0,0]);
 
 
