@@ -74,13 +74,13 @@ function onLoad(){
     sphere.setTranslation(-0.5,-0.1,0.2);
     objects3d.push(sphere);
 
-    var revSolid = new cosRevolucio(gl, program, (x=>x),(x => -0.5*x+1), 14, 140,red);
+    /*var revSolid = new cosRevolucio(gl, program, (x=>x),(x => -0.5*x+1), 14, 140,red);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(0.25,-0.3,0);
-    objects3d.push(revSolid);
+    objects3d.push(revSolid);*/
 
     //bol
-    revSolid = new cosRevolucio(gl, program, (x=>x), (x => x*x+1), 14, 140, magenta);
+    var revSolid = new cosRevolucio(gl, program, (x=>x), (x => x*x+1), 14, 140, magenta);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(0.25,0.3,0);
     objects3d.push(revSolid);
@@ -98,6 +98,19 @@ function onLoad(){
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(0.25,0.3,0.8);
     objects3d.push(revSolid);*/
+
+    var t1 = 0.5, t2 = -0.5, t3 = 0;
+
+    revSolid = new cosRevolucio(gl, program, (x=>x),(x => x), 14, 140,red);
+    revSolid.setScale(0.3,0.3,0.3);
+    revSolid.setTranslation(t1,t2,t3);
+    objects3d.push(revSolid);    
+
+
+    revSolid = new cosRevolucio(gl, program, (x=>x),(x => -x), 14, 140,cyan);
+    revSolid.setScale(0.3,0.3,0.3);
+    revSolid.setTranslation(t1,t2,t3);
+    objects3d.push(revSolid);    
 
     render();
 }
@@ -283,6 +296,10 @@ function render()
         objects3d[i].draw();
 
     animate();
+
+    objects3d[3].addRotation(1, [1,0,0]);
+    objects3d[4].addRotation(1, [1,0,0]);
+
 
     requestAnimFrame( render );
 }

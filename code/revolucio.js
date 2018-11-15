@@ -140,7 +140,7 @@ class cosRevolucio{
 
     draw(){
         
-        let movement = mult(this.rotationMatrix, this.translationMatrix);
+        let movement = mult(this.translationMatrix,this.rotationMatrix);
         let transformation = mult(movement, this.scaleMatrix);
         
         let uniformLoc = gl.getUniformLocation(this.program, "objectTransformation");
