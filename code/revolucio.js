@@ -138,8 +138,6 @@ class cosRevolucio{
         this.translationMatrix = mult(this.translationMatrix, translate(x,y,z));
     }
 
-
-
     draw(){
         
         let movement = mult(this.rotationMatrix, this.translationMatrix);

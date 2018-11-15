@@ -46,7 +46,8 @@ function onLoad(){
     crearMapa();
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+    var clearColor = black;
+    gl.clearColor( clearColor[0], clearColor[1], clearColor[2], 1.0 );
 
     //  Load shaders and initialize attribute buffers
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
@@ -68,28 +69,35 @@ function onLoad(){
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
     objectTransformationLoc = gl.getUniformLocation(program, "objectTransformation");
 
-    var sphere = new Sphere(gl, program, 7, black);
-    sphere.setScale(0.1,0.1,0.1);
-    sphere.setTranslation(-0.2,-0.1,0);
+    var sphere = new Sphere(gl, program, 4, black);
+    sphere.setScale(0.25,0.25,0.25);
+    sphere.setTranslation(-0.5,-0.1,0.2);
     objects3d.push(sphere);
+
     var revSolid = new cosRevolucio(gl, program, (x=>x),(x => -0.5*x+1), 14, 140,red);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(0.25,-0.3,0);
     objects3d.push(revSolid);
 
+    //bol
     revSolid = new cosRevolucio(gl, program, (x=>x), (x => x*x+1), 14, 140, magenta);
     revSolid.setScale(0.3,0.3,0.3);
     revSolid.setTranslation(0.25,0.3,0);
     objects3d.push(revSolid);
-    
 
+    //cilindre
     revSolid = new cosRevolucio(gl, program, (x=>1), (x => x), 14, 140, green);
     revSolid.setScale(0.3,0.3,0.3);
-    revSolid.setTranslation(-0.25,0.3,0);
-    revSolid.addRotation(20, [1,0,1]);
+    revSolid.setTranslation(-0.4,0.6,-0.5);
+    revSolid.addRotation(20, [0,0,1]);
+    revSolid.addRotation(40, [1,0,0]);
     objects3d.push(revSolid);
 
-    
+    //dep
+    /*revSolid = new cosRevolucio(gl, program, (x=>x), (x => 4.7 + 7.50285714e+00*x + -4.16136032e+01*x*x + -1.65621257e+02*x*x*x + 1.88399879e+03*x*x*x*x + -7.22112601e+03*x*x*x*x*x + 1.58166581e+04*x*x*x*x*x*x + -2.72492719e+04*x*x*x*x*x*x*x + 6.67824714e+04*x*x*x*x*x*x*x*x + -1.01876238e+06*x*x*x*x*x*x*x*x*x + 3.60146117e+06*x*x*x*x*x*x*x*x*x*x), 14, 140, magenta);
+    revSolid.setScale(0.3,0.3,0.3);
+    revSolid.setTranslation(0.25,0.3,0.8);
+    objects3d.push(revSolid);*/
 
     render();
 }
@@ -122,6 +130,20 @@ function crearMapa(){
         vec4( sizeX+x, sizeY+y,-sizeZ+z,1.0),
         orange
     );
+    quad( //paret anterior
+        vec4(-sizeX+x,-sizeY+y,-sizeZ+z,1.0),
+        vec4(-sizeX+x, sizeY+y,-sizeZ+z,1.0),
+        vec4( sizeX+x,-sizeY+y,-sizeZ+z,1.0),
+        vec4( sizeX+x, sizeY+y,-sizeZ+z,1.0),
+        yellow
+    );
+    quad( //sostre
+        vec4(-sizeX+x, sizeY+y,-sizeZ+z,1.0),
+        vec4(-sizeX+x, sizeY+y, sizeZ+z,1.0),
+        vec4( sizeX+x, sizeY+y,-sizeZ+z,1.0),
+        vec4( sizeX+x, sizeY+y, sizeZ+z,1.0),
+        cyan
+    );
 }
 
 function quad(p1, p2, p3, p4, color){
@@ -152,21 +174,24 @@ var zPos = 5.0;
 var speed = 0;
 
 function handleKeys() {
+    let yawRate2 =0.075
 	if (currentlyPressedKeys[33]) {
 		// Page Up
 		pitchRate = 0.1;
+        console.log(pitch);
 	} else if (currentlyPressedKeys[34]) {
 		// Page Down
 		pitchRate = -0.1;
+        console.log(pitch);
 	} else {
 		pitchRate = 0;
 	}
 	if (currentlyPressedKeys[37] || currentlyPressedKeys[65]) {
 		// Left cursor key or A
-        yawRate = 0.05;
+        yawRate = yawRate2;
 	} else if (currentlyPressedKeys[39] || currentlyPressedKeys[68]) {
 		// Right cursor key or D
-		yawRate = -0.05;
+		yawRate = -yawRate2;
 	} else {
 		yawRate = 0;
 	}
@@ -194,10 +219,11 @@ function animate() {
     if (lastTime != 0) {
         var elapsed = timeNow - lastTime;
         if (speed != 0) {
-            xPos -= Math.sin(degToRad(yaw)) * speed * elapsed;
-            zPos -= Math.cos(degToRad(yaw)) * speed * elapsed;
+            let distance = speed * elapsed;
+            xPos -= Math.sin(degToRad(yaw)) * distance;
+            zPos -= Math.cos(degToRad(yaw)) * distance;
+            yPos -=  Math.tan(degToRad(-pitch)) * distance;
             joggingAngle += elapsed * 0.6; // 0.6 "fiddle factor" - makes it feel more realistic :-)
-            yPos -=  Math.sin(degToRad(pitch)) * speed * elapsed;
         }
         yaw += yawRate * elapsed;
         pitch += pitchRate * elapsed;
@@ -219,8 +245,6 @@ var bottom = -1.0;
 
 function render()
 {
-    
-
     handleKeys();
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
