@@ -5,8 +5,17 @@ class cosRevolucio{
     constructor(gl, program, funcX, funcY, LPERF, NDIVS, color){ //position és una array de 3
         this.gl = gl;
         this.program = program;
-        this.funcX = funcX;
-        this.funcY = funcY;
+        if(Array.isArray(funcX)){
+            this.funcX = undefined;
+            this.funcY = undefined;
+            this.Xvalues = funcX;
+            this.Yvalues = funcY;
+        }
+        else{
+            this.funcX = funcX;
+            this.funcY = funcY;
+        }
+        
         this.points = undefined;
         this.colors = undefined;
         this.cBuffer = undefined;
@@ -47,11 +56,20 @@ class cosRevolucio{
         var angle, x;
         var act = new this.Profile(), ini = new this.Profile();
 
-        for (var i=0;i<this.LPERF;i++)
-        {
-            x = i / this.LPERF;
-            //ini.p[i] = new Vertex3d(x,-0.5*x+1,0).vec;
-            ini.p[i] = new this.Vertex3d(this.funcX(x),this.funcY(x),0).vec;
+        if(this.funcX == undefined) {
+            for (var i=0;i<this.Xvalues.length;i++)
+            {
+                ini.p[i] = new this.Vertex3d(this.Xvalues[i],this.Yvalues[i],0).vec;
+            }
+        }
+        else{
+            for (var i=0;i<this.LPERF;i++)
+            {
+                x = i / this.LPERF;
+                //ini.p[i] = new Vertex3d(x,-0.5*x+1,0).vec;
+                ini.p[i] = new this.Vertex3d(this.funcX(x),this.funcY(x),0).vec;
+            }
+
         }
 
         m.nvertices = 0;

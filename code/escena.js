@@ -71,7 +71,7 @@ function onLoad(){
 
     var sphere = new Sphere(gl, program, 4, black);
     sphere.setScale(0.25,0.25,0.25);
-    sphere.setTranslation(-0.5,-0.1,0.2);
+    sphere.setTranslation(0.7,-0.7,-0.5);
     objects3d.push(sphere);
 
     var revSolid = new cosRevolucio(gl, program, (x=>x),(x => -0.5*x+1), 14, 140,red);
@@ -91,6 +91,14 @@ function onLoad(){
     revSolid.setTranslation(-0.4,0.6,-0.5);
     revSolid.addRotation(20, [0,0,1]);
     revSolid.addRotation(40, [1,0,0]);
+    objects3d.push(revSolid);
+
+    //copa martini
+    var xvalues = [0,1,0.1,0.1,0.3,0.3];
+    var yvalues = [1,1,0,-0.9,-0.9,-1];
+    revSolid = new cosRevolucio(gl, program, xvalues, yvalues, xvalues.length, 140, cyan);
+    revSolid.setScale(0.3,0.3,0.3);
+    revSolid.setTranslation(-0.7,-0.7,-0.5);
     objects3d.push(revSolid);
 
     //dep
